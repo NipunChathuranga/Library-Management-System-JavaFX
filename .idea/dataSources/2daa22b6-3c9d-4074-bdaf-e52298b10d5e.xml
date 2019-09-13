@@ -1170,46 +1170,51 @@
       <DataType>double(10,2 digit)|0s</DataType>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <key id="295" parent="284" name="PRIMARY">
+    <column id="295" parent="284" name="return_date">
+      <Position>3</Position>
+      <DataType>date|0s</DataType>
+      <ColumnKind>normal</ColumnKind>
+    </column>
+    <key id="296" parent="284" name="PRIMARY">
       <NameSurrogate>1</NameSurrogate>
       <ColNames>issue_id</ColNames>
       <Primary>1</Primary>
     </key>
-    <column id="296" parent="285" name="issueid">
+    <column id="297" parent="285" name="issueid">
       <Position>1</Position>
       <DataType>varchar(20)|0s</DataType>
       <NotNull>1</NotNull>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="297" parent="285" name="date">
+    <column id="298" parent="285" name="date">
       <Position>2</Position>
       <DataType>date|0s</DataType>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="298" parent="285" name="book_id">
+    <column id="299" parent="285" name="book_id">
       <Position>3</Position>
       <DataType>varchar(25)|0s</DataType>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="299" parent="285" name="member_id">
+    <column id="300" parent="285" name="member_id">
       <Position>4</Position>
       <DataType>varchar(20)|0s</DataType>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <index id="300" parent="285" name="book_id">
+    <index id="301" parent="285" name="book_id">
       <ColNames>book_id</ColNames>
       <Type>btree</Type>
     </index>
-    <index id="301" parent="285" name="member_id">
+    <index id="302" parent="285" name="member_id">
       <ColNames>member_id</ColNames>
       <Type>btree</Type>
     </index>
-    <key id="302" parent="285" name="PRIMARY">
+    <key id="303" parent="285" name="PRIMARY">
       <NameSurrogate>1</NameSurrogate>
       <ColNames>issueid</ColNames>
       <Primary>1</Primary>
     </key>
-    <foreign-key id="303" parent="285" name="issue_ibfk_1">
+    <foreign-key id="304" parent="285" name="issue_ibfk_1">
       <ColNames>book_id</ColNames>
       <RefSchemaName>library</RefSchemaName>
       <RefTableName>book</RefTableName>
@@ -1217,7 +1222,7 @@
       <OnUpdate>cascade</OnUpdate>
       <OnDelete>cascade</OnDelete>
     </foreign-key>
-    <foreign-key id="304" parent="285" name="issue_ibfk_2">
+    <foreign-key id="305" parent="285" name="issue_ibfk_2">
       <ColNames>member_id</ColNames>
       <RefSchemaName>library</RefSchemaName>
       <RefTableName>library_member</RefTableName>
@@ -1225,23 +1230,23 @@
       <OnUpdate>cascade</OnUpdate>
       <OnDelete>cascade</OnDelete>
     </foreign-key>
-    <column id="305" parent="286" name="memberid">
+    <column id="306" parent="286" name="memberid">
       <Position>1</Position>
       <DataType>varchar(20)|0s</DataType>
       <NotNull>1</NotNull>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="306" parent="286" name="membername">
+    <column id="307" parent="286" name="membername">
       <Position>2</Position>
       <DataType>varchar(20)|0s</DataType>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="307" parent="286" name="memberaddress">
+    <column id="308" parent="286" name="memberaddress">
       <Position>3</Position>
       <DataType>varchar(20)|0s</DataType>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <key id="308" parent="286" name="PRIMARY">
+    <key id="309" parent="286" name="PRIMARY">
       <NameSurrogate>1</NameSurrogate>
       <ColNames>memberid</ColNames>
       <Primary>1</Primary>

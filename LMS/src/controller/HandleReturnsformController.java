@@ -3,8 +3,6 @@ package controller;
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXComboBox;
 import com.jfoenix.controls.JFXTextField;
-import db.DB;
-import db.IssueDetail;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
@@ -17,7 +15,6 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
-import util.BookTM;
 import util.ReturnTM;
 
 import java.io.IOException;
@@ -48,9 +45,8 @@ public class HandleReturnsformController {
     private PreparedStatement psForSelect;
     private PreparedStatement psForUpdate;
     private PreparedStatement psForLoadBook;
-    private PreparedStatement   psForLoadIssue;
-
-
+    private PreparedStatement psForLoadIssue;
+    private PreparedStatement psForIssueID;
 
 
     public void initialize() throws ClassNotFoundException, SQLException {
@@ -73,6 +69,12 @@ public class HandleReturnsformController {
             psForUpdate = connection.prepareStatement("UPDATE book SET status='Available' WHERE bookid=?");
             psForLoadBook = connection.prepareStatement("SELECT * FROM book WHERE status='Not Available'");
             psForLoadIssue = connection.prepareStatement("SELECT * FROM issue");
+            psForIssueID = connection.prepareStatement("SELECT issue.issueid,issue.book_id,book.status\n" +
+                    "FROM issue\n" +
+                    "INNER JOIN book ON book.bookid = issue.book_id\n" +
+                    "WHERE book.status='Not Available'\n" +
+                    "ORDER BY issue.issueid;\n" +
+                    " \n");
 
             loadAllReturnedBooks();
 
@@ -88,12 +90,34 @@ public class HandleReturnsformController {
 //        for (IssueDetail issueDetail : DB.issuedBookList) {
 //            issuedids.add(issueDetail.getIssueId());
 //        }
-        ResultSet resultSet = psForSelect.executeQuery();
+
         ObservableList<String> cmbObservableList = cmbIssuedID.getItems();
-        while ((resultSet.next())) {
-            String cmbid = resultSet.getString("issueid");
-            cmbObservableList.add(cmbid);
+        ResultSet resultSet = psForIssueID.executeQuery();
+        while (resultSet.next()){
+            String iid = resultSet.getString("issueid");
+            cmbObservableList.add(iid);
+
         }
+
+
+//        while(resultSet1.next()){
+//            while (resultSet2.next()){
+//                System.out.println("--Testing Testing--");
+//                if(resultSet2.getString("bookid").equals( resultSet1.getString("book_id"))){
+//                    System.out.println("-TEST-");
+//                    String cmbid = resultSet1.getString("issueid");
+//                    cmbObservableList.add(cmbid);
+//                }
+//            }
+//        }
+
+
+
+//        while ((resultSet.next())) {
+//
+//            String cmbid = resultSet.getString("issueid");
+//            cmbObservableList.add(cmbid);
+//        }
 
 
         cmbIssuedID.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
@@ -240,14 +264,14 @@ public class HandleReturnsformController {
 
         ResultSet rst = psForLoadIssue.executeQuery();
         String bookid = null;
-        while (rst.next()){
-            if(rst.getString("issueid").equals(cmbIssuedID.getSelectionModel().getSelectedItem())){
-                 bookid = rst.getString("book_id");
+        while (rst.next()) {
+            if (rst.getString("issueid").equals(cmbIssuedID.getSelectionModel().getSelectedItem())) {
+                bookid = rst.getString("book_id");
             }
         }
-        pstmForInsert.setString(1,cmbIssuedID.getSelectionModel().getSelectedItem());
-        pstmForInsert.setString(2,txtFieldFee.getText());
-        pstmForInsert.setString(3,txtFieldCurrentDate.getText());
+        pstmForInsert.setString(1, cmbIssuedID.getSelectionModel().getSelectedItem());
+        pstmForInsert.setString(2, txtFieldFee.getText());
+        pstmForInsert.setString(3, txtFieldCurrentDate.getText());
         int i = pstmForInsert.executeUpdate();
 
         if (i > 0) {
@@ -256,16 +280,20 @@ public class HandleReturnsformController {
             new Alert(Alert.AlertType.ERROR, "Error", ButtonType.OK).show();
         }
         System.out.println(bookid);
-        psForUpdate.setString(1,bookid);
+        psForUpdate.setString(1, bookid);
         int i1 = psForUpdate.executeUpdate();
         if (i1 > 0) {
             System.out.println("Update Done");
         }
 
+        ObservableList<String> cmbObservableList = cmbIssuedID.getItems();
+        cmbObservableList.clear();
+        ResultSet resultSet = psForIssueID.executeQuery();
+        while (resultSet.next()){
+            String iid = resultSet.getString("issueid");
+            cmbObservableList.add(iid);
 
-
-
-
+        }
 
 //        for (IssueDetail issueDetail : DB.issuedBookList) {
 //            if (issueDetail.getIssueId().equals(cmbIssuedID.getSelectionModel().getSelectedItem())) {
