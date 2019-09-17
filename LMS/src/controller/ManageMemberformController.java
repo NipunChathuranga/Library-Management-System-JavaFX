@@ -254,7 +254,7 @@ public class ManageMemberformController {
                         tblViewMembers.refresh();
                         btnNewMember_OnAction(actionEvent);
                     } else {
-                        new Alert(Alert.AlertType.ERROR, "Failed to updated").show();
+                        new Alert(Alert.AlertType.ERROR, "Failed to update").show();
                     }
 //                    MemberTM selectedmember = tblViewMembers.getSelectionModel().getSelectedItem();
 //                    selectedmember.setName(txtFieldName.getText());
