@@ -55,5 +55,10 @@
       <Label layoutX="379.0" layoutY="206.0" prefHeight="17.0" prefWidth="49.0" text="Overdue" />
       <TextField fx:id="txtOverdue" layoutX="431.0" layoutY="201.0" prefHeight="25.0" prefWidth="43.0" />
       <Label layoutX="480.0" layoutY="206.0" prefHeight="17.0" prefWidth="49.0" text="Days" />
+      <JFXButton layoutX="402.0" layoutY="541.0" onAction="#viewReport_OnAction" prefHeight="38.0" prefWidth="142.0" ripplerFill="#eeecec" style="-fx-background-color: #4CAF50;" text="View Report" textFill="#f5f2f2">
+         <font>
+            <Font name="System Bold" size="14.0" />
+         </font>
+      </JFXButton>
    </children>
 </AnchorPane>

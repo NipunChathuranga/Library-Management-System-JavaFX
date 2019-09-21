@@ -16,6 +16,12 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
+import net.sf.jasperreports.engine.JRException;
+import net.sf.jasperreports.engine.JasperFillManager;
+import net.sf.jasperreports.engine.JasperPrint;
+import net.sf.jasperreports.engine.JasperReport;
+import net.sf.jasperreports.engine.util.JRLoader;
+import net.sf.jasperreports.view.JasperViewer;
 import util.ReturnTM;
 
 import java.io.IOException;
@@ -24,6 +30,8 @@ import java.sql.*;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 public class HandleReturnsformController {
     public JFXComboBox<String> cmbIssuedID;
@@ -317,5 +325,17 @@ public class HandleReturnsformController {
         txtFieldIssuedDate.clear();
         txtFieldFee.clear();
         txtOverdue.clear();
+    }
+
+    public void viewReport_OnAction(ActionEvent actionEvent) throws JRException {
+
+        JasperReport mainJasperReport = (JasperReport) JRLoader.loadObject(this.getClass().getResourceAsStream("/report/ReturnBookReport.jasper"));
+        Map<String, Object> params = new HashMap<>();
+        JasperPrint jasperPrint = JasperFillManager.fillReport(mainJasperReport,
+                params, DBConnection.getInstance().getConnection());
+        JasperViewer.viewReport(jasperPrint, false);
+
+
+
     }
 }
