@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.9.0.final using JasperReports Library version 6.9.0-cb8f9004be492ccc537180b49c026951f4220bf3  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="IssueMainReport" pageWidth="595" pageHeight="500" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="257576ec-9a6d-4fa2-914e-85c4b590dd31">
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="Customer  Data Adapter "/>
+	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+	<property name="com.jaspersoft.studio.unit." value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.pageHeight" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.pageWidth" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.topMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.bottomMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.leftMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.rightMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.columnWidth" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.columnSpacing" value="pixel"/>
+	<parameter name="issueid" class="java.lang.String"/>
+	<queryString>
+		<![CDATA[SELECT library.issue.issueid,
+	library.issue.date,
+	library.issue.member_id,
+	library.library_member.membername
+FROM library.issue
+	INNER JOIN library.library_member ON 
+	 library.issue.member_id = library.library_member.memberid
+	 WHERE library.issue.issueid = $P{issueid}]]>
+	</queryString>
+	<field name="issueid" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="issueid"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="issue"/>
+	</field>
+	<field name="date" class="java.sql.Date">
+		<property name="com.jaspersoft.studio.field.label" value="date"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="issue"/>
+	</field>
+	<field name="member_id" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="member_id"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="issue"/>
+	</field>
+	<field name="membername" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="membername"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="library_member"/>
+	</field>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="80" splitType="Stretch">
+			<staticText>
+				<reportElement mode="Opaque" x="0" y="0" width="556" height="80" forecolor="#FCF7F7" backcolor="rgba(69, 90, 100, 0.79607844)" uuid="6829fb52-4607-4a89-a45b-2a50b3c9f2a2"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="24"/>
+				</textElement>
+				<text><![CDATA[Issue Report]]></text>
+			</staticText>
+		</band>
+	</title>
+	<columnHeader>
+		<band height="66" splitType="Stretch">
+			<textField>
+				<reportElement x="100" y="0" width="170" height="30" uuid="5ee63ca9-ab92-4e55-8a93-d15fbe511de5"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font size="14"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{issueid}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="0" y="0" width="100" height="30" uuid="438b25ef-7ebd-44bf-9050-213493c02990"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="14" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Issue ID :]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="280" y="30" width="130" height="35" uuid="abdab58a-19d9-4287-8186-d4c979549495"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="14" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Member Name :]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="280" y="0" width="100" height="30" uuid="183f5316-f0e8-4808-86e1-e3ab4d71f226"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="14" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Issue Date  :]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="30" width="130" height="35" uuid="3a02852d-dfa9-4e16-9848-b3a163ef04bc"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="14" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Member ID :]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="130" y="32" width="140" height="33" uuid="6665a562-2190-4d34-99ac-e5986f545e4b"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font size="14"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{member_id}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="380" y="0" width="176" height="30" uuid="4997b82a-d9cf-4dfa-9415-4a762a894a26"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font size="14"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{date}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="410" y="30" width="146" height="35" uuid="d13b57b9-3f24-4bf2-a395-f3be1304bb47"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font size="14"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{membername}]]></textFieldExpression>
+			</textField>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="125" splitType="Stretch">
+			<subreport>
+				<reportElement x="-20" y="4" width="591" height="121" uuid="3286f139-fd56-43d2-aaf3-6ff49d0b471c"/>
+				<subreportParameter name="subissueid">
+					<subreportParameterExpression><![CDATA[$P{issueid}]]></subreportParameterExpression>
+				</subreportParameter>
+				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+				<subreportExpression><![CDATA["report/IssueSubReport.jasper"]]></subreportExpression>
+			</subreport>
+		</band>
+	</detail>
+</jasperReport>

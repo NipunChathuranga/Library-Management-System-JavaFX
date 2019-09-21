@@ -2,6 +2,7 @@ package controller;
 
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXTextField;
+import db.DBConnection;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -15,11 +16,21 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
+import net.sf.jasperreports.engine.*;
+import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
+import net.sf.jasperreports.engine.design.JasperDesign;
+import net.sf.jasperreports.engine.xml.JRXmlLoader;
+import net.sf.jasperreports.view.JasperViewer;
 import util.MemberTM;
 
 import java.io.IOException;
 import java.net.URL;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 
@@ -36,6 +47,7 @@ public class ManageMemberformController {
     public JFXButton btnDelete;
     public JFXButton btnSave;
     public TextField txtField_Search;
+    public JFXButton viewReport;
     private Connection connection;
     private PreparedStatement psForSelect;
     private PreparedStatement psForInsert;
@@ -55,9 +67,9 @@ public class ManageMemberformController {
         tblViewMembers.getColumns().get(0).setCellValueFactory(new PropertyValueFactory<>("id"));
         tblViewMembers.getColumns().get(1).setCellValueFactory(new PropertyValueFactory<>("name"));
         tblViewMembers.getColumns().get(2).setCellValueFactory(new PropertyValueFactory<>("address"));
-        Class.forName("com.mysql.jdbc.Driver");
+
         try {
-            connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/library", "root", "root");
+            connection = DBConnection.getInstance().getConnection();
             psForSelect = connection.prepareStatement("SELECT * FROM library_member WHERE memberid LIKE ? OR membername LIKE ? OR " +
                     "memberaddress LIKE ?");
             psForInsert = connection.prepareStatement("INSERT INTO library_member VALUES (?,?,?)");
@@ -186,12 +198,20 @@ public class ManageMemberformController {
     }
 
     public void btnDelete_OnAction(ActionEvent actionEvent) {
+
+        MemberTM selectedItem = tblViewMembers.getSelectionModel().getSelectedItem();
+        if (selectedItem == null) {
+            new Alert(Alert.AlertType.WARNING, "Please select one member.", ButtonType.OK).show();
+            return;
+        }
+
+
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION,
                 "Are you sure whether you want to delete this member?",
                 ButtonType.YES, ButtonType.NO);
         Optional<ButtonType> buttonType = alert.showAndWait();
         if (buttonType.get() == ButtonType.YES) {
-            MemberTM selectedItem = tblViewMembers.getSelectionModel().getSelectedItem();
+
             tblViewMembers.getItems().remove(selectedItem);
             try {
 
@@ -268,13 +288,14 @@ public class ManageMemberformController {
             } else {
 
                 txtFieldAddress.requestFocus();
-                System.out.println("Please enter a valid address.");
+                new Alert(Alert.AlertType.ERROR, "Please enter a valid address.").showAndWait();
             }
 
 
         } else {
             txtFieldName.requestFocus();
-            System.out.println("Please enter a valid name.");
+            new Alert(Alert.AlertType.ERROR, "Please enter a valid name.").showAndWait();
+
         }
 
     }
@@ -286,5 +307,22 @@ public class ManageMemberformController {
         Stage primaryStage = (Stage) (this.anchrpane_ManageMems.getScene().getWindow());
         primaryStage.setScene(scene);
         primaryStage.centerOnScreen();
+    }
+
+    public void viewReport_OnAction(ActionEvent actionEvent) throws JRException {
+        ObservableList<MemberTM> members = tblViewMembers.getItems();
+        System.out.println(members);
+        JasperDesign jasperDesign = JRXmlLoader.
+                load(ManageMemberformController.class.
+                        getResourceAsStream("/report/MemberJasper.jrxml"));
+
+
+        JasperReport jasperReport = JasperCompileManager.compileReport(jasperDesign);
+
+        Map<String, Object> params = new HashMap<>();
+        JasperPrint jasperPrint = JasperFillManager.fillReport(jasperReport,
+                params, new JRBeanCollectionDataSource(members));
+
+        JasperViewer.viewReport(jasperPrint, false);
     }
 }

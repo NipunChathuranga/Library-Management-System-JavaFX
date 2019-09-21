@@ -3,6 +3,7 @@ package controller;
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXComboBox;
 import com.jfoenix.controls.JFXTextField;
+import db.DBConnection;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
@@ -56,10 +57,10 @@ public class HandleReturnsformController {
         tblViewHandleBooks.getColumns().get(2).setCellValueFactory(new PropertyValueFactory<>("membername"));
         tblViewHandleBooks.getColumns().get(3).setCellValueFactory(new PropertyValueFactory<>("date"));
 
-        Class.forName("com.mysql.jdbc.Driver");
+
         try {
-            connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/library", "root", "root");
-//
+            connection = DBConnection.getInstance().getConnection();
+
             psForSelect = connection.prepareStatement("SELECT issue.issueid,issue.member_id,library_member.membername,issue.date\n" +
                     "FROM issue\n" +
                     "LEFT JOIN library_member ON library_member.memberid = issue.member_id\n" +
@@ -81,6 +82,9 @@ public class HandleReturnsformController {
         } catch (SQLException e) {
             System.out.println("SECOND: " + e);
         }
+
+
+
 
 //        ObservableList<IssueDetail> issueDetails = FXCollections.observableList(DB.issuedBookList);
 //        ObservableList<IBookCartTM> iBookCartTMS = FXCollections.observableList(DB.tblCart);

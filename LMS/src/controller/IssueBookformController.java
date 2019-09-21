@@ -3,6 +3,7 @@ package controller;
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXComboBox;
 import com.jfoenix.controls.JFXTextField;
+import db.DBConnection;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -20,13 +21,22 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
+import net.sf.jasperreports.engine.JasperFillManager;
+import net.sf.jasperreports.engine.JasperPrint;
+import net.sf.jasperreports.engine.JasperReport;
+import net.sf.jasperreports.engine.util.JRLoader;
+import net.sf.jasperreports.view.JasperViewer;
 import util.IBookCartTM;
 
 import java.io.IOException;
 import java.net.URL;
-import java.sql.*;
-import java.text.SimpleDateFormat;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.time.LocalDate;
+import java.util.HashMap;
+import java.util.Map;
 
 public class IssueBookformController {
     public JFXTextField txtFieldIssueID;
@@ -59,9 +69,9 @@ public class IssueBookformController {
         tblViewIssued.getColumns().get(1).setCellValueFactory(new PropertyValueFactory<>("title"));
         tblViewIssued.getColumns().get(2).setCellValueFactory(new PropertyValueFactory<>("author"));
         tblViewIssued.getColumns().get(3).setCellValueFactory(new PropertyValueFactory<>("delete"));
-        Class.forName("com.mysql.jdbc.Driver");
+
         try {
-            connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/library", "root", "root");
+            connection = DBConnection.getInstance().getConnection();
             psForSelect = connection.prepareStatement("SELECT * FROM issue");
             psForInsert = connection.prepareStatement("INSERT INTO issue VALUES (?,?,?,?)");
             psForUpdate = connection.prepareStatement("UPDATE book SET status='Not Available' WHERE bookid=?");
@@ -182,27 +192,7 @@ public class IssueBookformController {
                 } catch (SQLException e) {
                     e.printStackTrace();
                 }
-//
-//                if (selectedBookCode == null) {
-//
-//                    txtFieldAuthor.clear();
-//                    txtFieldTitle.clear();
-//
-//                    btnAdd.setDisable(true);
-//                    return;
-//                }
-//
-//
-//                btnAdd.setDisable(false);
-//                for (BookTM bookTM : tempbooks) {
-//                    if (bookTM.getBookid().equals(selectedBookCode)) {
-//                        txtFieldTitle.setText((bookTM.getTitle()));
-//                        txtFieldAuthor.setText(bookTM.getAuthor());
-//                        txtFieldAuthor.setEditable(false);
-//                        txtFieldTitle.setEditable(false);
-//
-//                    }
-//                }
+
             }
         });
 
@@ -230,21 +220,7 @@ public class IssueBookformController {
         txtFieldIssueID.setDisable(false);
         btnAdd.setDisable(false);
         generateIssueId();
-//        ObservableList<String> books = cmbBookID.getItems();
-//        books.clear();
-//        for (BookTM book : DB.booklist) {
-//            if (book.getStatus().equals("Available")) {
-//                books.add(book.getBookid());
-//            }
-//        }
-//
-//
-//
-//        reset();
-//        tempbooks = new ArrayList<>();
-//        for (BookTM item : DB.booklist) {
-//            tempbooks.add(item.clone());
-//        }
+
 
     }
 
@@ -283,63 +259,11 @@ public class IssueBookformController {
                 //txtNumberOfBook.setText(Integer.toString(count));
                 txtFieldIssueID.setDisable(false);
                 btnAdd.setDisable(true);
-                new Alert(Alert.AlertType.WARNING,"You can borrow only one book at a time.").show();
+                new Alert(Alert.AlertType.WARNING, "You can borrow only one book at a time.").show();
 
             }
         }
-//        String selectedItemCode = cmbBookID.getSelectionModel().getSelectedItem();
-//
-//        ObservableList<IBookCartTM> details = tblViewIssued.getItems();
-//        Button btnDelete = new Button("Delete");
-//
-//
-//        IBookCartTM detailTM = new IBookCartTM(cmbBookID.getSelectionModel().getSelectedItem(),
-//                txtFieldTitle.getText(), txtFieldAuthor.getText(), btnDelete);
-//        for (BookTM bookTM : tempbooks) {
-//            if (bookTM.getBookid().equals(cmbBookID.getSelectionModel().getSelectedItem())) {
-//                bookTM.setStatus("NA");
-//            }
-//        }
-//
-//        btnDelete.setOnAction(new EventHandler<ActionEvent>() {
-//            @Override
-//            public void handle(ActionEvent event) {
-//                for (BookTM tempbook : tempbooks) {
-//                    if (tempbook.getBookid().equals(detailTM.getBookid())) {
-//
-//                        tempbook.setStatus("Available");
-//                        break;
-//                    }
-//                }
-//                tblViewIssued.getItems().remove(detailTM);
-//
-//
-//                enableIssueBookButton();
-//                if (tblViewIssued.getItems().size() == 1) {
-//                    btnAdd.setDisable(true);
-//                }
-//                cmbBookID.requestFocus();
-//                cmbBookID.getSelectionModel().clearSelection();
-//                tblViewIssued.getSelectionModel().clearSelection();
-//                btnAdd.setDisable(false);
-//            }
-//
-//        });
-//
-//        details.add(detailTM);
-//        enableIssueBookButton();
-//        cmbBookID.requestFocus();
-//        //cmbBookID.getSelectionModel().clearSelection();
-//        tblViewIssued.getSelectionModel().clearSelection();
-//
-//        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-//        alert.setTitle("Borrowing Limits");
-//
-//        // Header Text: null
-//        alert.setHeaderText(null);
-//        alert.setContentText(" You have reached your borrowing limit ! ");
-//
-//        alert.showAndWait();
+
 
     }
 
@@ -380,85 +304,65 @@ public class IssueBookformController {
         }
 
 
-//        private void reset() {
-//
-//        txtFieldDate.setText(String.valueOf(LocalDate.now()));
-//        btnIssueBook.setDisable(true);
-//        btnAdd.setDisable(true);
-//        txtFieldTitle.setEditable(false);
-//        txtFieldName.setEditable(false);
-//        txtFieldAuthor.setEditable(false);
-//        cmbBookID.getSelectionModel().clearSelection();
-//        cmbMemberID.getSelectionModel().clearSelection();
-//        tblViewIssued.getItems().clear();
-//        txtFieldName.clear();
-//
-//        int maxOrderId = 0;
-//        for (IssueDetail issueDetail : DB.issuedBookList) {
-//            int issueId = Integer.parseInt(issueDetail.getIssueId().replace("I", ""));
-//            if (issueId > maxOrderId) {
-//                maxOrderId = issueId;
-//            }
-//        }
-//        maxOrderId++;
-//        if (maxOrderId < 10) {
-//            txtFieldIssueID.setText("I00" + maxOrderId);
-//        } else if (maxOrderId < 100) {
-//            txtFieldIssueID.setText("I0" + maxOrderId);
-//        } else {
-//            txtFieldIssueID.setText("I" + maxOrderId);
-//        }
-//
-//
-//    }
-//
-
-
-//    private void enableIssueBookButton() {
-//
-//        String selectedMember = cmbMemberID.getSelectionModel().getSelectedItem();
-//        int size = tblViewIssued.getItems().size();
-//        if (selectedMember == null || size == 0) {
-//            btnIssueBook.setDisable(true);
-//        } else {
-//            btnIssueBook.setDisable(false);
-//        }
-//
-//
-//    }
-
-
-//
-//
-//
-//    }
     }
 
     public void btnIssueBook_OnAction(ActionEvent actionEvent) throws SQLException {
         String selectedItem = (String) cmbBookID.getSelectionModel().getSelectedItem();
 
-        psForInsert.setString(1, txtFieldIssueID.getText());
-        psForInsert.setString(2, txtFieldDate.getText());
-        psForInsert.setString(3, cmbBookID.getSelectionModel().getSelectedItem());
-        psForInsert.setString(4, cmbMemberID.getSelectionModel().getSelectedItem());
+        try {
 
-        System.out.println(psForInsert);
+            connection.setAutoCommit(false);
+            psForInsert.setString(1, txtFieldIssueID.getText());
+            psForInsert.setString(2, txtFieldDate.getText());
+            psForInsert.setString(3, cmbBookID.getSelectionModel().getSelectedItem());
+            psForInsert.setString(4, cmbMemberID.getSelectionModel().getSelectedItem());
 
-        int i = psForInsert.executeUpdate();
+            System.out.println(psForInsert);
 
-        if (i > 0) {
-            new Alert(Alert.AlertType.CONFIRMATION, "Success", ButtonType.OK).show();
-        } else {
-            new Alert(Alert.AlertType.ERROR, "Error", ButtonType.OK).show();
+            int i = psForInsert.executeUpdate();
+
+            if (i == 0) {
+                connection.rollback();
+                throw new RuntimeException("Error!! Something went wrong");
+            }
+
+
+
+
+            psForUpdate.setString(1, selectedItem);
+
+            int i1 = psForUpdate.executeUpdate();
+            if (i1 == 0) {
+                connection.rollback();
+                throw new RuntimeException("Something, something went wrong");
+            }
+
+            connection.commit();
+            new Alert(Alert.AlertType.INFORMATION, "--Book Issue Process Completed--").showAndWait();
+            JasperReport mainJasperReport = (JasperReport) JRLoader.loadObject(this.getClass().getResourceAsStream("/report/IssueMainReport.jasper"));
+
+
+            Map<String, Object> params = new HashMap<>();
+            params.put("issueid", txtFieldIssueID.getText());
+
+            JasperPrint jasperPrint = JasperFillManager.fillReport(mainJasperReport,
+                    params, DBConnection.getInstance().getConnection());
+            JasperViewer.viewReport(jasperPrint, false);
+        } catch (Throwable e) {
+            try {
+                connection.rollback();
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+            e.printStackTrace();
+        } finally {
+            try {
+                connection.setAutoCommit(true);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
 
-
-        psForUpdate.setString(1, selectedItem);
-
-        int i1 = psForUpdate.executeUpdate();
-        if (i1 > 0) {
-            System.out.println("done");
-        }
 
         cmbBookID.getItems().clear();
 
@@ -473,13 +377,6 @@ public class IssueBookformController {
         cmbMemberID.getSelectionModel().clearSelection();
         txtFieldName.clear();
         tblViewIssued.getItems().clear();
-//        IssueDetail issueDetail = new IssueDetail(txtFieldIssueID.getText(),
-//                LocalDate.now(),cmbBookID.getSelectionModel().getSelectedItem(),
-//                cmbMemberID.getSelectionModel().getSelectedItem(), txtFieldName.getText());
-//        DB.issuedBookList.add(issueDetail);
-//        DB.booklist = tempbooks;
-//        System.out.println(issueDetail);
-//        reset();
-       // generateIssueId();
+
     }
 }

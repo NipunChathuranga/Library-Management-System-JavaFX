@@ -2,6 +2,7 @@ package controller;
 
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXTextField;
+import db.DBConnection;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -15,11 +16,20 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
+import net.sf.jasperreports.engine.*;
+import net.sf.jasperreports.engine.design.JasperDesign;
+import net.sf.jasperreports.engine.xml.JRXmlLoader;
+import net.sf.jasperreports.view.JasperViewer;
 import util.BookTM;
 
 import java.io.IOException;
 import java.net.URL;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 public class ManageBookformController {
@@ -70,9 +80,9 @@ public class ManageBookformController {
         tblViewBooks.getColumns().get(4).setCellValueFactory(new PropertyValueFactory<>("status"));
 
 
-        Class.forName("com.mysql.jdbc.Driver");
         try {
-            connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/library", "root", "root");
+
+            connection = DBConnection.getInstance().getConnection();
 //            psForSelect = connection.prepareStatement("SELECT * FROM book WHERE bookid LIKE ? OR title LIKE ? OR " +
 //                    "author LIKE ? OR  price LIKE ? OR status LIKE ?");
             pstmForQuery = connection.prepareStatement("SELECT * FROM book WHERE bookid LIKE ? OR title LIKE ? OR author LIKE ? OR price LIKE ? OR status LIKE ?");
@@ -83,6 +93,7 @@ public class ManageBookformController {
         } catch (SQLException e) {
             System.out.println("SECOND: " + e);
         }
+
 
         tblViewBooks.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<BookTM>() {
             @Override
@@ -251,14 +262,14 @@ public class ManageBookformController {
                             selectedbook.setStatus(txtFieldStatus.getText());
                             tblViewBooks.refresh();
 
-                           // String sql = "UPDATE book set bookid = ?, title = ? , author = ?,price =?, status=? where bookid = ?";
+                            // String sql = "UPDATE book set bookid = ?, title = ? , author = ?,price =?, status=? where bookid = ?";
                             //pstmForQuery = connection.prepareStatement(sql);
                             psForUpdate.setString(1, txtFieldBookID.getText());
                             psForUpdate.setString(2, txtFieldTitle.getText());
                             psForUpdate.setString(3, txtFieldAuthor.getText());
                             psForUpdate.setDouble(4, Double.parseDouble(txtFieldPrice.getText()));
                             psForUpdate.setString(5, txtFieldStatus.getText());
-                            psForUpdate.setString(6,txtFieldBookID.getText());
+                            psForUpdate.setString(6, txtFieldBookID.getText());
 
 
                             psForUpdate.executeUpdate();
@@ -281,25 +292,27 @@ public class ManageBookformController {
 
 
                         txtFieldPrice.requestFocus();
-                        System.out.println("Please enter a valid price.");
+                        new Alert(Alert.AlertType.ERROR, "Please enter a valid price.").showAndWait();
+
                     }
 
 
                 } else {
                     txtFieldAuthor.requestFocus();
-                    System.out.println("Please enter a valid author.");
+                    new Alert(Alert.AlertType.ERROR, "Please enter a valid author.").showAndWait();
                 }
 
 
             } else {
 
                 txtFieldTitle.requestFocus();
-                System.out.println("Please enter a valid title.");
+                new Alert(Alert.AlertType.ERROR, "Please enter a valid title.").showAndWait();
             }
 
 
         } catch (NumberFormatException e) {
-            System.out.println("You must set values for the text fields.");
+            new Alert(Alert.AlertType.ERROR, "You must set values for the text fields.").showAndWait();
+
         }
 
     }
@@ -357,25 +370,6 @@ public class ManageBookformController {
         btnAdd.setDisable(false);
         generateID();
 
-//        int maxId = 0;
-//        for (BookTM books : DB.booklist) {
-//            int id = Integer.parseInt(books.getBookid().replace("B", ""));
-//            if (id > maxId) {
-//                maxId = id;
-//            }
-//        }
-//
-//        maxId = maxId + 1;
-//        String id = "";
-//        if (maxId < 10) {
-//            id = "B00" + maxId;
-//        } else if (maxId < 100) {
-//            id = "B0" + maxId;
-//        } else {
-//            id = "B" + maxId;
-//        }
-//        txtFieldBookID.setText(id);
-
 
     }
 
@@ -389,24 +383,19 @@ public class ManageBookformController {
             BookTM selectedItem = tblViewBooks.getSelectionModel().getSelectedItem();
             tblViewBooks.getItems().remove(selectedItem);
             try {
-                //loadAllCustomers();
-                //pstmForQuery = connection.prepareStatement("DELETE FROM customer WHERE id = ? ");
+
                 psForDelete.setString(1, selectedItem.getBookid());
-//                pstmForQuery.setString(2, selectedItem.getName());
-//                pstmForQuery.setString(3, selectedItem.getAddress());
+
                 boolean b = psForDelete.executeUpdate() > 0;
-                if (b){
-                    new Alert(Alert.AlertType.INFORMATION,"Customer Has Deleted..",ButtonType.OK).show();
-                }else{
-                    new Alert(Alert.AlertType.WARNING,"Try Again",ButtonType.OK).show();
+                if (b) {
+                    new Alert(Alert.AlertType.INFORMATION, "Book Has Deleted..", ButtonType.OK).show();
+                } else {
+                    new Alert(Alert.AlertType.WARNING, "Try Again", ButtonType.OK).show();
                 }
 
             } catch (Exception e) {
                 System.out.println(e);
             }
-
-
-
 
 
         }
@@ -419,5 +408,15 @@ public class ManageBookformController {
         Stage primaryStage = (Stage) (this.anchrPaneManageBooks.getScene().getWindow());
         primaryStage.setScene(scene);
         primaryStage.centerOnScreen();
+    }
+
+    public void viewReport_OnAction(ActionEvent actionEvent) throws JRException {
+        JasperDesign jasperDesign = JRXmlLoader.load(ManageBookformController.class.getResourceAsStream("/report/BooksReport.jrxml"));
+        JasperReport jasperReport = JasperCompileManager.compileReport(jasperDesign);
+        Map<String, Object> params = new HashMap<>();
+        JasperPrint jasperPrint = JasperFillManager.fillReport(jasperReport,
+                params, DBConnection.getInstance().getConnection());
+        JasperViewer.viewReport(jasperPrint, false);
+
     }
 }
